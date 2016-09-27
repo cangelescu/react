@@ -12,6 +12,7 @@ var config={
 	paths:{
 		html:'./src/*.html',
 		js:'./src/**/*.js',
+		thirdPartyJs:['./node_modules/jquery/dist/jquery.js'],
 		css:'./src/css/*.css'
 	},
 	dist:'./build',
@@ -54,6 +55,12 @@ gulp.task('js',function(){
 		.pipe(connect.reload());
 });
 
+gulp.task('third-party-js',function(){
+	gulp.src(config.paths.thirdPartyJs)
+		.pipe(gulp.dest(config.dist+"/third-party-js"))
+		.pipe(connect.reload());
+});
+
 //copy and process css files
 gulp.task('css',function(){
 	gulp.src(config.paths.css)
@@ -74,4 +81,4 @@ gulp.task('watch',function(){
 });
 
 //Setup build workflow as default task
-gulp.task('default',['html','js','css','open','watch']);
+gulp.task('default',['html','js', 'third-party-js','css','open','watch']);

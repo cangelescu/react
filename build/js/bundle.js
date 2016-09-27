@@ -22996,6 +22996,46 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 module.exports = NotFoundPage;
 
 },{"react":198,"react-router":26}],200:[function(require,module,exports){
+var baseUrl = "http://localhost:8080";
+
+var prepareUrl = function(url){
+	if(!url.trim().startsWith("http")){
+		return baseUrl + url;
+	}
+	
+	return url;
+}
+
+var ajaxSupport = {
+	get: function(options){
+		options.type = "GET";
+		options.contentType="application/json";
+		options.url = prepareUrl(options.url);
+		return $.ajax(options);
+	}
+	,post: function(options){
+		options.type = "POST";
+		options.contentType="application/json";
+		options.url = prepareUrl(options.url);
+		return $.ajax(options);
+	}
+	,put: function(options){
+		options.type = "PUT";
+		options.contentType="application/json";
+		options.url = prepareUrl(options.url);
+		return $.ajax(options);
+	}
+	,delete: function(options){
+		options.type = "DELETE";
+		options.contentType="application/json";
+		options.url = prepareUrl(options.url);
+		return $.ajax(options);
+	}
+}
+
+module.exports = ajaxSupport;
+
+},{}],201:[function(require,module,exports){
 var React = require('react');
 var RouteHandler = require('react-router').RouteHandler;
 
@@ -23011,7 +23051,7 @@ var AppBaseView = React.createClass({displayName: "AppBaseView",
 
 module.exports = AppBaseView;
 
-},{"react":198,"react-router":26}],201:[function(require,module,exports){
+},{"react":198,"react-router":26}],202:[function(require,module,exports){
 var React = require('react');
 
 var HomePage = React.createClass({displayName: "HomePage",
@@ -23038,7 +23078,7 @@ var HomePage = React.createClass({displayName: "HomePage",
 
 module.exports = HomePage;
 
-},{"react":198}],202:[function(require,module,exports){
+},{"react":198}],203:[function(require,module,exports){
 var React = require('react');
 
 var LoginPage = React.createClass({displayName: "LoginPage",
@@ -23053,7 +23093,114 @@ var LoginPage = React.createClass({displayName: "LoginPage",
 
 module.exports = LoginPage;
 
-},{"react":198}],203:[function(require,module,exports){
+},{"react":198}],204:[function(require,module,exports){
+var React = require('react');
+var AjaxSupport = require('../ajax/ajax');
+
+var RegisterPage = React.createClass({displayName: "RegisterPage",
+	getInitialState: function(){
+		return {
+			firstName:null,
+			lastName:null,
+			email:null,
+			password:null,
+			repeatPassword:null
+		}
+	}
+		,isValidInputValue: function(inputValue){
+			if (!inputValue || inputValue.trim().length === 0){
+				return false;
+			}
+			return true;
+		}
+		
+		,firstNameChangeHandler : function(event){
+			var firstNameValue = event.target.value;
+			if (!this.isValidInputValue(firstNameValue)){
+				firstNameValue = null;
+			}
+			this.setState({firstName:firstNameValue});
+		}
+		
+		,lastNameChangeHandler : function(event){
+			var lastNameValue = event.target.value;
+			if (!this.isValidInputValue(lastNameValue)){
+				lastNameValue = null;
+			}
+			this.setState({lastName:lastNameValue});
+		}
+		
+		,emailNameChangeHandler : function(event){
+			var emailValue = event.target.value;
+			if (!this.isValidInputValue(emailValue)){
+				emailValue = null;
+			}
+			this.setState({emailName:emailValue});
+		}
+		
+		,passwordNameChangeHandler : function(event){
+			var passwordValue = event.target.value;
+			if (!this.isValidInputValue(passwordValue)){
+				passwordValue = null;
+			}
+			this.setState({password:passwordValue});
+		}
+		
+		,password2NameChangeHandler : function(event){
+			var password2Value = event.target.value;
+			if (!this.isValidInputValue(password2Value)){
+				password2Value = null;
+			}
+			this.setState({rpassword:password2Value});
+		}
+		
+		,formSubmitHandler: function(event){
+			event.preventDefault();
+			console.log(this.state);
+			
+			if(this.isValidStateForSubmit()){
+				AjaxSupport.post({
+					url:'/register-user'
+					, data:this.state
+					, succes: function(){
+						console.log("request succes");
+					}
+					, error :function(){
+						console.log("my request failed");
+					}
+				});
+				
+				console.log("Form ready for submit");
+			}
+			else {
+				console.log("there bla bla");
+			}
+		}
+		
+		,isValidStateForSubmit: function(){
+			return this.state.firstName && this.state.lastName && this.state.email && 
+				this.state.password && this.state.repeatPassword && (this.state.password === this.state.repeatPassword);
+		}
+	
+	
+	,render: function(){
+		return(
+			React.createElement("form", null, 
+				React.createElement("input", {type: "text", name: "firstName", placeholder: "First name", onChange: this.firstNameChangeHandler}), " ", React.createElement("br", null), 
+				React.createElement("input", {type: "text", name: "lastName", placeholder: "Last name", onChange: this.lastNameChangeHandler}), "   ", React.createElement("br", null), 
+				React.createElement("input", {type: "email", name: "email", placeholder: "Email", onChange: this.emailNameChangeHandler}), "    ", React.createElement("br", null), 
+				React.createElement("input", {type: "password", name: "password", placeholder: "password", onChange: this.passwordNameChangeHandler}), " ", React.createElement("br", null), 
+				React.createElement("input", {type: "repeatPassword", name: "rpassword", placeholder: "Repeat password", onChange: this.password2NameChangeHandler}), "  ", React.createElement("br", null), 
+				
+				React.createElement("button", {type: "submit", onClick: this.formSubmitHandler}, " Submit")
+			)
+			);
+	}
+});
+
+module.exports = RegisterPage;React.createElement("br", null)
+
+},{"../ajax/ajax":200,"react":198}],205:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var Route = Router.Route;
@@ -23063,20 +23210,21 @@ var AppBaseView = require('./app/layout');
 var NotFoundView = require('./404/layout');
 var HomeView = require('./home/layout');
 var LoginView = require('./login/layout');
+var RegisterView = require('./register/layout');
 
 
 var routes =(
 	React.createElement(Route, {name: "baseAppRouter", path: "/", handler: AppBaseView}, 
 		React.createElement(DefaultRoute, {handler: HomeView}), 
 		React.createElement(NotFoundRoute, {handler: NotFoundView}), 
-		
+		React.createElement(Route, {name: "register", handler: RegisterView}), 
 		React.createElement(Route, {name: "login", handler: LoginView})
 	)
 	
 );
 module.exports = routes;
 
-},{"./404/layout":199,"./app/layout":200,"./home/layout":201,"./login/layout":202,"react":198,"react-router":26}],204:[function(require,module,exports){
+},{"./404/layout":199,"./app/layout":201,"./home/layout":202,"./login/layout":203,"./register/layout":204,"react":198,"react-router":26}],206:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var routes = require('./js/routes');
@@ -23085,4 +23233,4 @@ Router.run(routes, function(Handler){
 	React.render(React.createElement(Handler, null) , document.getElementById('app'));
 });
 
-},{"./js/routes":203,"react":198,"react-router":26}]},{},[204]);
+},{"./js/routes":205,"react":198,"react-router":26}]},{},[206]);
